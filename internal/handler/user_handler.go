@@ -4,9 +4,14 @@ import (
 	"get_pet/internal/database"
 	"get_pet/internal/dto"
 	"get_pet/internal/model"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
+)
+
+var (
+	ERRUniqueConstraint = "SQLSTATE 23505"
 )
 
 type UserHandler struct {
@@ -35,6 +40,10 @@ func (h *UserHandler) Register(c *fiber.Ctx) error {
 
 	err = h.UserDB.Create(u)
 	if err != nil {
+		if strings.Contains(err.Error(), ERRUniqueConstraint) {
+			return c.Status(fiber.StatusConflict).JSON(Response{Error: true, Message: "user already exists"})
+		}
+
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(Response{Error: true, Message: "error to register user"})
 	}
 
