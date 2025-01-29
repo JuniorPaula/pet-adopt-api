@@ -1,18 +1,23 @@
 package main
 
 import (
+	"get_pet/internal/config"
 	"get_pet/internal/router"
 	"log"
 	"os"
 
 	"github.com/gofiber/fiber/v2"
-	"gorm.io/gorm"
 )
 
 func main() {
+	db, err := config.ConnectDatabase()
+	if err != nil {
+		panic(err)
+	}
+
 	app := fiber.New()
 
-	router.BootstrapRouter(app, &gorm.DB{})
+	router.BootstrapRouter(app, db)
 
 	port := os.Getenv("PORT")
 	if port == "" {
