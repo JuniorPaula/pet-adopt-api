@@ -10,10 +10,6 @@ import (
 	"gorm.io/gorm"
 )
 
-var (
-	ERRUniqueConstraint = "SQLSTATE 23505"
-)
-
 type UserHandler struct {
 	UserDB database.UserInterface
 }
@@ -26,7 +22,7 @@ func (h *UserHandler) Register(c *fiber.Ctx) error {
 	var body dto.CreateUserDto
 
 	if err := c.BodyParser(&body); err != nil {
-		return c.Status(fiber.StatusUnprocessableEntity).JSON(Response{Error: true, Message: "internal server error"})
+		return c.Status(fiber.StatusUnprocessableEntity).JSON(Response{Error: true, Message: ERRInternalServerError})
 	}
 
 	if body.Password != body.ConfirmPassword {
