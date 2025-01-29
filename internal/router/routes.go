@@ -18,12 +18,5 @@ func BootstrapRouter(app *fiber.App, db *gorm.DB) {
 	api.Post("/login", authHandler.Login)
 
 	userRouter := api.Group("/user", middleware.AuthMiddleware)
-	userRouter.Get("profile", func(c *fiber.Ctx) error {
-		user := c.Locals("user")
-		if user == nil {
-			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": true, "message": "anauthoried"})
-		}
-
-		return c.Status(fiber.StatusOK).JSON(fiber.Map{"error": false, "message": "user log in", "data": user})
-	})
+	userRouter.Get("profile", userHandler.GetProfile)
 }

@@ -49,3 +49,30 @@ func (h *UserHandler) Register(c *fiber.Ctx) error {
 		Data:    u,
 	})
 }
+
+func (h *UserHandler) GetProfile(c *fiber.Ctx) error {
+	userID, err := getUserIdFromCtx(c)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(Response{
+			Error:   true,
+			Message: err.Error(),
+		})
+	}
+
+	u, err := h.UserDB.GetByID(userID)
+	if err != nil {
+		if strings.Contains(err.Error(), ERRRecordNotFound) {
+			return c.Status(fiber.StatusBadRequest).JSON(Response{
+				Error:   true,
+				Message: "User not found",
+			})
+		}
+
+		return c.Status(fiber.StatusInternalServerError).JSON(Response{
+			Error:   true,
+			Message: ERRInternalServerError,
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(Response{Error: false, Message: "success", Data: u})
+}
