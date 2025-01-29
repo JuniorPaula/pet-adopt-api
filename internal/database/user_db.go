@@ -25,3 +25,9 @@ func (u *UserDB) GetByEmail(email string) (*model.User, error) {
 	err := u.DB.Where("email = ?", email).First(&user).Error
 	return &user, err
 }
+
+func (u *UserDB) GetByID(id int) (*model.User, error) {
+	var user model.User
+	err := u.DB.Where("id = ?", id).First(&user).Error
+	return &user, err
+}
