@@ -10,5 +10,8 @@ import (
 func BootstrapRouter(app *fiber.App, db *gorm.DB) {
 
 	userHandler := handler.NewUserHandler(db)
+	authHandler := handler.NewAuthHandler(db)
+
 	app.Post("/register", userHandler.Register)
+	app.Post("/login", authHandler.Login)
 }
