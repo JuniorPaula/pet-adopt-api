@@ -1,7 +1,6 @@
 package database
 
 import (
-	"fmt"
 	"get_pet/internal/model"
 
 	"gorm.io/gorm"
@@ -18,6 +17,5 @@ func NewUser(db *gorm.DB) *UserDB {
 }
 
 func (u *UserDB) Create(user *model.User) error {
-	fmt.Println(user)
-	return nil
+	return u.DB.Create(user).Error
 }
