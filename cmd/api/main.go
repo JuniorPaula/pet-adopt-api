@@ -7,7 +7,16 @@ import (
 	"os"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/joho/godotenv"
 )
+
+var PORT = "6969"
+
+func init() {
+	if err := godotenv.Load(); err != nil {
+		log.Fatal("Error load .env file")
+	}
+}
 
 func main() {
 	db, err := config.ConnectDatabase()
@@ -21,7 +30,7 @@ func main() {
 
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "6969"
+		port = PORT
 	}
 
 	log.Fatal(app.Listen(":" + port))
