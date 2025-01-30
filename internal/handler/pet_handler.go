@@ -1,11 +1,14 @@
 package handler
 
 import (
+	"fmt"
 	"get_pet/internal/database"
 	"get_pet/internal/dto"
 	"get_pet/internal/model"
+	"get_pet/internal/util"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
@@ -40,18 +43,29 @@ func (h *PetHandler) Create(c *fiber.Ctx) error {
 	}
 
 	var imagesPath []string
+	var savedFiles []string
 
 	form, err := c.MultipartForm()
 	if err == nil {
 		files := form.File["images"]
 		for _, file := range files {
-			filePath := filepath.Join(uploadDir, file.Filename)
+			ext := filepath.Ext(file.Filename)
+			newFilename := fmt.Sprintf("%d-%s%s", time.Now().Unix(), util.GenerateRandomHash(12), ext)
+			filePath := filepath.Join(uploadDir, newFilename)
 
 			if err := c.SaveFile(file, filePath); err != nil {
+				// Remove if not save
+				if len(savedFiles) > 0 {
+					for _, savedFile := range savedFiles {
+						os.Remove(savedFile)
+					}
+				}
+
 				return c.Status(fiber.StatusInternalServerError).JSON(Response{Error: true, Message: "Could not save file"})
 			}
 
 			imagesPath = append(imagesPath, "/"+filePath)
+			savedFiles = append(savedFiles, filePath)
 		}
 	}
 
@@ -63,6 +77,11 @@ func (h *PetHandler) Create(c *fiber.Ctx) error {
 
 	err = h.PetDB.Create(pet)
 	if err != nil {
+		if len(savedFiles) > 0 {
+			for _, savedFile := range savedFiles {
+				os.Remove(savedFile)
+			}
+		}
 		return c.Status(fiber.StatusInternalServerError).JSON(Response{Error: true, Message: ERRInternalServerError})
 	}
 

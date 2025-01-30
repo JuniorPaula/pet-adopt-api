@@ -48,6 +48,9 @@ func (p *Pet) ValidateFields() error {
 	if p.Weight <= 0 {
 		return errors.New("pet wight is required")
 	}
+	if len(p.Images) <= 0 {
+		return errors.New("pet image is required")
+	}
 	return nil
 }
 
