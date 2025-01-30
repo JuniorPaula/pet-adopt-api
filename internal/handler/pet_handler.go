@@ -4,6 +4,8 @@ import (
 	"get_pet/internal/database"
 	"get_pet/internal/dto"
 	"get_pet/internal/model"
+	"os"
+	"path/filepath"
 
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
@@ -32,7 +34,28 @@ func (h *PetHandler) Create(c *fiber.Ctx) error {
 		})
 	}
 
-	pet := model.NewPet(userID, body.Age, body.Weight, body.Name, body.Size, body.Color, body.Images)
+	uploadDir := "uploads"
+	if _, err := os.Stat(uploadDir); os.IsNotExist(err) {
+		os.Mkdir(uploadDir, os.ModePerm)
+	}
+
+	var imagesPath []string
+
+	form, err := c.MultipartForm()
+	if err == nil {
+		files := form.File["images"]
+		for _, file := range files {
+			filePath := filepath.Join(uploadDir, file.Filename)
+
+			if err := c.SaveFile(file, filePath); err != nil {
+				return c.Status(fiber.StatusInternalServerError).JSON(Response{Error: true, Message: "Could not save file"})
+			}
+
+			imagesPath = append(imagesPath, "/"+filePath)
+		}
+	}
+
+	pet := model.NewPet(userID, body.Age, body.Weight, body.Name, body.Size, body.Color, imagesPath)
 	err = pet.ValidateFields()
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(Response{Error: true, Message: err.Error()})
