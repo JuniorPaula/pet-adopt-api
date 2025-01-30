@@ -91,3 +91,24 @@ func (h *PetHandler) Create(c *fiber.Ctx) error {
 		Data:    pet,
 	})
 }
+
+func (h *PetHandler) GetAll(c *fiber.Ctx) error {
+	userID, err := getUserIdFromCtx(c)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(Response{
+			Error:   true,
+			Message: err.Error(),
+		})
+	}
+
+	pets, err := h.PetDB.GetAll(userID)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(Response{Error: true, Message: ERRInternalServerError})
+	}
+
+	return c.Status(fiber.StatusCreated).JSON(Response{
+		Error:   false,
+		Message: "success",
+		Data:    pets,
+	})
+}
