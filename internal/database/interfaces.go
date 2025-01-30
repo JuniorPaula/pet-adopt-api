@@ -10,5 +10,6 @@ type UserInterface interface {
 
 type PetInterface interface {
 	Create(pet *model.Pet) error
-	GetAll(int) ([]model.Pet, error)
+	GetAll(userID int) ([]model.Pet, error)
+	GetByID(ID, userID int) (*model.Pet, error)
 }

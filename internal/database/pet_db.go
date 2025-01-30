@@ -29,3 +29,13 @@ func (p *PetDB) GetAll(userID int) ([]model.Pet, error) {
 
 	return pets, nil
 }
+
+func (p *PetDB) GetByID(ID, userID int) (*model.Pet, error) {
+	var pet model.Pet
+	err := p.DB.Preload("Owner").Where("id = ? AND user_id = ?", ID, userID).First(&pet).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return &pet, nil
+}
