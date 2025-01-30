@@ -24,6 +24,7 @@ func BootstrapRouter(app *fiber.App, db *gorm.DB) {
 
 	api.Post("/register", userHandler.Register)
 	api.Post("/login", authHandler.Login)
+	api.Get("/pets", petHandler.GetAll)
 
 	userRouter := api.Group("/user", middleware.AuthMiddleware)
 	userRouter.Get("profile", userHandler.GetProfile)

@@ -94,6 +94,35 @@ func (h *PetHandler) Create(c *fiber.Ctx) error {
 	})
 }
 
+func (h *PetHandler) GetAll(c *fiber.Ctx) error {
+	var (
+		page  = c.Query("page")
+		limit = c.Query("limit")
+		sort  = c.Query("sort")
+	)
+
+	pageInt, err := strconv.Atoi(page)
+	if err != nil {
+		pageInt = 0
+	}
+
+	limitInt, err := strconv.Atoi(limit)
+	if err != nil {
+		limitInt = 0
+	}
+
+	pets, err := h.PetDB.GetAll(pageInt, limitInt, sort)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(Response{Error: true, Message: ERRInternalServerError})
+	}
+
+	return c.Status(fiber.StatusCreated).JSON(Response{
+		Error:   false,
+		Message: "success",
+		Data:    pets,
+	})
+}
+
 func (h *PetHandler) GetAllByUserID(c *fiber.Ctx) error {
 	var (
 		page  = c.Query("page")

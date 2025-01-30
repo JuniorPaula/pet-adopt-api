@@ -20,6 +20,23 @@ func (p *PetDB) Create(pet *model.Pet) error {
 	return p.DB.Preload("Owner").Create(pet).Error
 }
 
+func (p *PetDB) GetAll(page, limit int, sort string) ([]model.Pet, error) {
+	var pets []model.Pet
+	var err error
+
+	if sort != "" && sort != "asc" && sort != "desc" {
+		sort = "asc"
+	}
+
+	if page != 0 && limit != 0 {
+		err = p.DB.Preload("Owner").Limit(limit).Offset((page - 1) * limit).Order("created_at " + sort).Find(&pets).Error
+	} else {
+		err = p.DB.Preload("Owner").Find(&pets).Error
+	}
+
+	return pets, err
+}
+
 func (p *PetDB) GetAllByUserID(userID, page, limit int, sort string) ([]model.Pet, error) {
 	var pets []model.Pet
 	var err error
