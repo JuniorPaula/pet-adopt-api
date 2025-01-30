@@ -31,4 +31,5 @@ func BootstrapRouter(app *fiber.App, db *gorm.DB) {
 	petRouter := api.Group("/pet", middleware.AuthMiddleware)
 	petRouter.Post("/", petHandler.Create)
 	petRouter.Get("/", petHandler.GetAll)
+	petRouter.Get("/:id", petHandler.GetByID)
 }

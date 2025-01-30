@@ -8,6 +8,8 @@ import (
 	"get_pet/internal/util"
 	"os"
 	"path/filepath"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -110,5 +112,44 @@ func (h *PetHandler) GetAll(c *fiber.Ctx) error {
 		Error:   false,
 		Message: "success",
 		Data:    pets,
+	})
+}
+
+func (h *PetHandler) GetByID(c *fiber.Ctx) error {
+	id, err := strconv.Atoi(c.Params("id"))
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(Response{
+			Error:   true,
+			Message: ERRInternalServerError,
+		})
+	}
+
+	userID, err := getUserIdFromCtx(c)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(Response{
+			Error:   true,
+			Message: err.Error(),
+		})
+	}
+
+	pet, err := h.PetDB.GetByID(id, userID)
+	if err != nil {
+		if strings.Contains(err.Error(), ERRRecordNotFound) {
+			return c.Status(fiber.StatusNotFound).JSON(Response{
+				Error:   true,
+				Message: "pet not found",
+			})
+		}
+
+		return c.Status(fiber.StatusInternalServerError).JSON(Response{
+			Error:   true,
+			Message: ERRInternalServerError,
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(Response{
+		Error:   false,
+		Message: "success",
+		Data:    pet,
 	})
 }
