@@ -153,3 +153,68 @@ func (h *PetHandler) GetByID(c *fiber.Ctx) error {
 		Data:    pet,
 	})
 }
+
+func (h *PetHandler) Update(c *fiber.Ctx) error {
+	petId, err := strconv.Atoi(c.Params("id"))
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(Response{Error: true, Message: "invalid pet id"})
+	}
+
+	var body dto.UpdatePetDto
+
+	if err := c.BodyParser(&body); err != nil {
+		return c.Status(fiber.StatusUnprocessableEntity).JSON(Response{Error: true, Message: ERRInternalServerError})
+	}
+
+	userID, err := getUserIdFromCtx(c)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(Response{
+			Error:   true,
+			Message: err.Error(),
+		})
+	}
+
+	pet, err := h.PetDB.GetByID(petId, userID)
+	if err != nil {
+		if strings.Contains(err.Error(), ERRRecordNotFound) {
+			return c.Status(fiber.StatusNotFound).JSON(Response{
+				Error:   true,
+				Message: "pet not found",
+			})
+		}
+
+		return c.Status(fiber.StatusInternalServerError).JSON(Response{
+			Error:   true,
+			Message: ERRInternalServerError,
+		})
+	}
+
+	if body.Name != "" {
+		pet.Name = body.Name
+	}
+	if body.Age > 0 {
+		pet.Age = body.Age
+	}
+	if body.Weight > 0 {
+		pet.Weight = body.Weight
+	}
+	if body.Color != "" {
+		pet.Color = body.Color
+	}
+	if body.Size != "" {
+		pet.Size = body.Size
+	}
+
+	pet.Available = body.Available
+
+	err = h.PetDB.Update(pet)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(Response{Error: true, Message: ERRInternalServerError})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(Response{
+		Error:   false,
+		Message: "pet updated on success",
+		Data:    pet,
+	})
+}

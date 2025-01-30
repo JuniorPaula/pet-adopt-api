@@ -32,4 +32,5 @@ func BootstrapRouter(app *fiber.App, db *gorm.DB) {
 	petRouter.Post("/", petHandler.Create)
 	petRouter.Get("/", petHandler.GetAll)
 	petRouter.Get("/:id", petHandler.GetByID)
+	petRouter.Put("/:id", petHandler.Update)
 }
