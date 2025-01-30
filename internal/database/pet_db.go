@@ -1,6 +1,7 @@
 package database
 
 import (
+	"encoding/json"
 	"get_pet/internal/model"
 
 	"gorm.io/gorm"
@@ -66,4 +67,13 @@ func (p *PetDB) GetByID(ID, userID int) (*model.Pet, error) {
 
 func (p *PetDB) Update(pet *model.Pet) error {
 	return p.DB.Where("id = ?", pet.ID).Updates(pet).Error
+}
+
+func (p *PetDB) UpdateImages(ID int, images []string) error {
+	imagesJSON, err := json.Marshal(images)
+	if err != nil {
+		return err
+	}
+
+	return p.DB.Model(&model.Pet{}).Where("id = ?", ID).Update("images", imagesJSON).Error
 }

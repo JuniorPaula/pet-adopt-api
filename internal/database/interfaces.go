@@ -14,4 +14,5 @@ type PetInterface interface {
 	GetAllByUserID(userID, page, limit int, sort string) ([]model.Pet, error)
 	GetByID(ID, userID int) (*model.Pet, error)
 	Update(pet *model.Pet) error
+	UpdateImages(ID int, images []string) error
 }

@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/log"
 	"gorm.io/gorm"
 )
 
@@ -262,4 +263,81 @@ func (h *PetHandler) Update(c *fiber.Ctx) error {
 		Message: "pet updated on success",
 		Data:    pet,
 	})
+}
+
+func (h *PetHandler) UpdatePetImages(c *fiber.Ctx) error {
+	petId, err := strconv.Atoi(c.Params("id"))
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(Response{
+			Error:   true,
+			Message: "invalid pet id",
+		})
+	}
+
+	userID, err := getUserIdFromCtx(c)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(Response{
+			Error:   true,
+			Message: err.Error(),
+		})
+	}
+
+	pet, err := h.PetDB.GetByID(petId, userID)
+	if err != nil {
+		if strings.Contains(err.Error(), ERRRecordNotFound) {
+			return c.Status(fiber.StatusNotFound).JSON(Response{
+				Error:   true,
+				Message: "pet not found",
+			})
+		}
+
+		return c.Status(fiber.StatusInternalServerError).JSON(Response{
+			Error:   true,
+			Message: ERRInternalServerError,
+		})
+	}
+
+	uploadDir := "uploads"
+	if _, err := os.Stat(uploadDir); os.IsNotExist(err) {
+		os.Mkdir(uploadDir, os.ModePerm)
+	}
+
+	var imagesPath []string
+	var savedFiles []string
+
+	form, err := c.MultipartForm()
+	if err == nil {
+		files := form.File["images"]
+		for _, file := range files {
+			ext := filepath.Ext(file.Filename)
+			newFilename := fmt.Sprintf("%d-%s%s", time.Now().Unix(), util.GenerateRandomHash(12), ext)
+			filePath := filepath.Join(uploadDir, newFilename)
+
+			if err := c.SaveFile(file, filePath); err != nil {
+				// Remove if not save
+				if len(savedFiles) > 0 {
+					for _, savedFile := range savedFiles {
+						os.Remove(savedFile)
+					}
+				}
+
+				return c.Status(fiber.StatusInternalServerError).JSON(Response{Error: true, Message: "Could not save file"})
+			}
+
+			imagesPath = append(imagesPath, "/"+filePath)
+			savedFiles = append(savedFiles, filePath)
+		}
+	}
+
+	pet.Images = append(pet.Images, imagesPath...)
+	err = h.PetDB.UpdateImages(petId, pet.Images)
+	if err != nil {
+		log.Error(err)
+		for _, savedFile := range savedFiles {
+			os.Remove(savedFile)
+		}
+		return c.Status(fiber.StatusInternalServerError).JSON(Response{Error: true, Message: "error on upload images"})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(Response{Error: false, Message: "upload image succeed"})
 }
