@@ -7,3 +7,7 @@ type UserInterface interface {
 	GetByEmail(string) (*model.User, error)
 	GetByID(int) (*model.User, error)
 }
+
+type PetInterface interface {
+	Create(pet *model.Pet) error
+}

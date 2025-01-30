@@ -9,6 +9,7 @@ import (
 
 type Pet struct {
 	gorm.Model
+	ID        int      `json:"id"`
 	UserID    uint     `json:"user_id"`
 	Name      string   `json:"name" gorm:"type:varchar(50);not null"`
 	Age       int      `json:"age" gorm:"not null"`
