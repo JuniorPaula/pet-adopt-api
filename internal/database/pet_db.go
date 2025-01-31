@@ -65,8 +65,8 @@ func (p *PetDB) GetByID(ID, userID int) (*model.Pet, error) {
 	return &pet, nil
 }
 
-func (p *PetDB) Update(pet *model.Pet) error {
-	return p.DB.Where("id = ?", pet.ID).Updates(pet).Error
+func (p *PetDB) Update(pet *model.Pet, newPet interface{}) error {
+	return p.DB.Model(&pet).Where("id = ?", pet.ID).Updates(newPet).Error
 }
 
 func (p *PetDB) UpdateImages(ID int, images []string) error {

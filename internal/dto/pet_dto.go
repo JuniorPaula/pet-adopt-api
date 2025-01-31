@@ -15,5 +15,5 @@ type UpdatePetDto struct {
 	Weight    float64 `json:"weight"`
 	Size      string  `json:"size"`
 	Color     string  `json:"color"`
-	Available bool    `json:"available"`
+	Available *bool   `json:"available"`
 }

@@ -234,25 +234,28 @@ func (h *PetHandler) Update(c *fiber.Ctx) error {
 		})
 	}
 
+	updateFields := map[string]interface{}{}
+
 	if body.Name != "" {
-		pet.Name = body.Name
+		updateFields["name"] = body.Name
 	}
 	if body.Age > 0 {
-		pet.Age = body.Age
+		updateFields["Age"] = body.Age
 	}
 	if body.Weight > 0 {
-		pet.Weight = body.Weight
+		updateFields["Weight"] = body.Weight
 	}
 	if body.Color != "" {
-		pet.Color = body.Color
+		updateFields["Color"] = body.Color
 	}
 	if body.Size != "" {
-		pet.Size = body.Size
+		updateFields["Size"] = body.Size
+	}
+	if body.Available != nil {
+		updateFields["Available"] = *body.Available
 	}
 
-	pet.Available = body.Available
-
-	err = h.PetDB.Update(pet)
+	err = h.PetDB.Update(pet, updateFields)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(Response{Error: true, Message: ERRInternalServerError})
 	}
