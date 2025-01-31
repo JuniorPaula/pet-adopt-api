@@ -17,11 +17,15 @@ import (
 )
 
 type PetHandler struct {
-	PetDB database.PetInterface
+	PetDB   database.PetInterface
+	VisitDB database.VisitInterface
 }
 
 func NewPetHandler(db *gorm.DB) *PetHandler {
-	return &PetHandler{PetDB: database.NewPet(db)}
+	return &PetHandler{
+		PetDB:   database.NewPet(db),
+		VisitDB: database.NewVisit(db),
+	}
 }
 
 func (h *PetHandler) Create(c *fiber.Ctx) error {
@@ -392,4 +396,64 @@ func (h *PetHandler) RemovePetImages(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(Response{Error: false, Message: "upload image succeed"})
+}
+
+func (h *PetHandler) ScheduleVisit(c *fiber.Ctx) error {
+	petId, err := strconv.Atoi(c.Params("id"))
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(Response{Error: true, Message: "invalid pet id"})
+	}
+
+	var visitData struct {
+		PetOwnerID int `json:"owner_id"`
+	}
+
+	if err := c.BodyParser(&visitData); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(Response{Error: true, Message: "Invalid request"})
+	}
+
+	userID, err := getUserIdFromCtx(c)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(Response{
+			Error:   true,
+			Message: err.Error(),
+		})
+	}
+
+	pet, err := h.PetDB.GetByID(petId, visitData.PetOwnerID)
+	if err != nil {
+		if strings.Contains(err.Error(), ERRRecordNotFound) {
+			return c.Status(fiber.StatusNotFound).JSON(Response{
+				Error:   true,
+				Message: "pet not found",
+			})
+		}
+
+		return c.Status(fiber.StatusInternalServerError).JSON(Response{
+			Error:   true,
+			Message: ERRInternalServerError,
+		})
+	}
+
+	if int(pet.UserID) == userID {
+		return c.Status(fiber.StatusNotFound).JSON(Response{
+			Error:   true,
+			Message: "could not scheduler visit on your owner pet",
+		})
+	}
+
+	newVisit := model.NewVisit(userID, petId, "pending")
+
+	err = h.VisitDB.Create(newVisit)
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(Response{
+			Error:   true,
+			Message: "error on scheduler visit pet",
+		})
+	}
+
+	return c.Status(fiber.StatusCreated).JSON(Response{
+		Error:   false,
+		Message: "visit scheduler on success",
+	})
 }
