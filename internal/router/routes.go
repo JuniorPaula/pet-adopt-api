@@ -26,10 +26,10 @@ func BootstrapRouter(app *fiber.App, db *gorm.DB) {
 	api.Post("/login", authHandler.Login)
 	api.Get("/pets", petHandler.GetAll)
 
-	userRouter := api.Group("/user", middleware.AuthMiddleware)
+	userRouter := api.Group("/users", middleware.AuthMiddleware)
 	userRouter.Get("profile", userHandler.GetProfile)
 
-	petRouter := api.Group("/pet", middleware.AuthMiddleware)
+	petRouter := api.Group("/pets", middleware.AuthMiddleware)
 	petRouter.Post("/", petHandler.Create)
 	petRouter.Get("/me", petHandler.GetAllByUserID)
 	petRouter.Get("/:id", petHandler.GetByID)
