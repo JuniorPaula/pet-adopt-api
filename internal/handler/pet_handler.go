@@ -420,6 +420,28 @@ func (h *PetHandler) ScheduleVisit(c *fiber.Ctx) error {
 		})
 	}
 
+	visit, err := h.VisitDB.GetByPetID(petId)
+	if err != nil {
+		if strings.Contains(err.Error(), ERRRecordNotFound) {
+			return c.Status(fiber.StatusNotFound).JSON(Response{
+				Error:   true,
+				Message: "visit not found for pet",
+			})
+		}
+
+		return c.Status(fiber.StatusInternalServerError).JSON(Response{
+			Error:   true,
+			Message: ERRInternalServerError,
+		})
+	}
+
+	if visit.UserID == uint(userID) {
+		return c.Status(fiber.StatusBadRequest).JSON(Response{
+			Error:   true,
+			Message: "visit already exists",
+		})
+	}
+
 	pet, err := h.PetDB.GetByID(petId, visitData.PetOwnerID)
 	if err != nil {
 		if strings.Contains(err.Error(), ERRRecordNotFound) {

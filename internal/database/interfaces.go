@@ -22,4 +22,5 @@ type PetInterface interface {
 // VisitInterface is a model for visit struct
 type VisitInterface interface {
 	Create(visit *model.Visit) error
+	GetByPetID(petID int) (*model.Visit, error)
 }
