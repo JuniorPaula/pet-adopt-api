@@ -13,7 +13,6 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/log"
 	"gorm.io/gorm"
 )
 
@@ -332,10 +331,60 @@ func (h *PetHandler) UpdatePetImages(c *fiber.Ctx) error {
 	pet.Images = append(pet.Images, imagesPath...)
 	err = h.PetDB.UpdateImages(petId, pet.Images)
 	if err != nil {
-		log.Error(err)
 		for _, savedFile := range savedFiles {
 			os.Remove(savedFile)
 		}
+		return c.Status(fiber.StatusInternalServerError).JSON(Response{Error: true, Message: "error on upload images"})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(Response{Error: false, Message: "upload image succeed"})
+}
+
+func (h *PetHandler) RemovePetImages(c *fiber.Ctx) error {
+	imageHash := c.Params("imageHash")
+	petId, err := strconv.Atoi(c.Params("id"))
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(Response{
+			Error:   true,
+			Message: "invalid pet id",
+		})
+	}
+
+	userID, err := getUserIdFromCtx(c)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(Response{
+			Error:   true,
+			Message: err.Error(),
+		})
+	}
+
+	pet, err := h.PetDB.GetByID(petId, userID)
+	if err != nil {
+		if strings.Contains(err.Error(), ERRRecordNotFound) {
+			return c.Status(fiber.StatusNotFound).JSON(Response{
+				Error:   true,
+				Message: "pet not found",
+			})
+		}
+
+		return c.Status(fiber.StatusInternalServerError).JSON(Response{
+			Error:   true,
+			Message: ERRInternalServerError,
+		})
+	}
+
+	var newImages []string
+	for _, img := range pet.Images {
+		parts := strings.Split(img, "-")
+
+		hash := strings.Split(parts[1], ".")[0]
+		if imageHash != hash {
+			newImages = append(newImages, img)
+		}
+	}
+
+	err = h.PetDB.UpdateImages(petId, newImages)
+	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(Response{Error: true, Message: "error on upload images"})
 	}
 
