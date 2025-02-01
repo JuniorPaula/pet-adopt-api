@@ -21,14 +21,18 @@ func BootstrapRouter(app *fiber.App, db *gorm.DB) {
 	userHandler := handler.NewUserHandler(db)
 	authHandler := handler.NewAuthHandler(db)
 	petHandler := handler.NewPetHandler(db)
+	adoptionHandler := handler.NewAdoptionHandler(db)
 
+	/* publics routes */
 	api.Post("/register", userHandler.Register)
 	api.Post("/login", authHandler.Login)
 	api.Get("/pets", petHandler.GetAll)
 
+	/* users routes */
 	userRouter := api.Group("/users", middleware.AuthMiddleware)
 	userRouter.Get("profile", userHandler.GetProfile)
 
+	/* pets routes */
 	petRouter := api.Group("/pets", middleware.AuthMiddleware)
 	petRouter.Post("/", petHandler.Create)
 	petRouter.Get("/me", petHandler.GetAllByUserID)
@@ -38,4 +42,8 @@ func BootstrapRouter(app *fiber.App, db *gorm.DB) {
 	petRouter.Delete("/:id/images/:imageHash", petHandler.RemovePetImages)
 	petRouter.Post("/:id/scheduler", petHandler.ScheduleVisit)
 	petRouter.Post("/:id/adopt", petHandler.ConfirmAdopt)
+
+	/* adoptions routes*/
+	adoptRouter := api.Group("/adopts", middleware.AuthMiddleware)
+	adoptRouter.Get("/", adoptionHandler.GetUserAdoptions)
 }
