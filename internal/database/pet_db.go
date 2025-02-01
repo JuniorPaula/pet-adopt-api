@@ -77,3 +77,7 @@ func (p *PetDB) UpdateImages(ID int, images []string) error {
 
 	return p.DB.Model(&model.Pet{}).Where("id = ?", ID).Update("images", imagesJSON).Error
 }
+
+func (p *PetDB) UpdateAvailability(petID int, available bool) error {
+	return p.DB.Model(&model.Pet{}).Where("id = ?", petID).Update("available", available).Error
+}

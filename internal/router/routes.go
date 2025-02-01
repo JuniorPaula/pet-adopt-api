@@ -37,4 +37,5 @@ func BootstrapRouter(app *fiber.App, db *gorm.DB) {
 	petRouter.Put("/:id/images", petHandler.UpdatePetImages)
 	petRouter.Delete("/:id/images/:imageHash", petHandler.RemovePetImages)
 	petRouter.Post("/:id/scheduler", petHandler.ScheduleVisit)
+	petRouter.Post("/:id/adopt", petHandler.ConfirmAdopt)
 }

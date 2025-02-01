@@ -16,16 +16,24 @@ func NewVisit(db *gorm.DB) *VisitDB {
 	}
 }
 
-func (u *VisitDB) Create(visit *model.Visit) error {
-	return u.DB.Create(visit).Error
+func (vd *VisitDB) Create(visit *model.Visit) error {
+	return vd.DB.Create(visit).Error
 }
 
-func (u *VisitDB) GetByPetID(petID int) (*model.Visit, error) {
+func (vd *VisitDB) GetByPetID(petID int) (*model.Visit, error) {
 	var v *model.Visit
-	err := u.DB.Where("pet_id = ?", petID).First(&v).Error
+	err := vd.DB.Where("pet_id = ?", petID).First(&v).Error
 	if err != nil {
 		return nil, err
 	}
 
 	return v, nil
+}
+
+func (vd *VisitDB) Update(visit *model.Visit, newData interface{}) error {
+	return vd.DB.Model(&visit).Where("id = ?", visit.ID).Updates(newData).Error
+}
+
+func (vd *VisitDB) UpdateStatus(ID int, status string) error {
+	return vd.DB.Model(&model.Visit{}).Where("id = ?", ID).Update("status", status).Error
 }

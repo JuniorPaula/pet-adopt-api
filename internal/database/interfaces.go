@@ -17,10 +17,18 @@ type PetInterface interface {
 	GetByID(ID, userID int) (*model.Pet, error)
 	Update(pet *model.Pet, newPet interface{}) error
 	UpdateImages(ID int, images []string) error
+	UpdateAvailability(petID int, available bool) error
 }
 
 // VisitInterface is a model for visit struct
 type VisitInterface interface {
 	Create(visit *model.Visit) error
 	GetByPetID(petID int) (*model.Visit, error)
+	Update(visit *model.Visit, newData interface{}) error
+	UpdateStatus(ID int, status string) error
+}
+
+// AdoptInterface is a model for adopt pet struct
+type AdoptInterface interface {
+	Create(adopt *model.Adoption) error
 }

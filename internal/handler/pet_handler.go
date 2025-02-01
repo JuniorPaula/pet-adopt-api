@@ -13,18 +13,21 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/log"
 	"gorm.io/gorm"
 )
 
 type PetHandler struct {
 	PetDB   database.PetInterface
 	VisitDB database.VisitInterface
+	AdoptDB database.AdoptInterface
 }
 
 func NewPetHandler(db *gorm.DB) *PetHandler {
 	return &PetHandler{
 		PetDB:   database.NewPet(db),
 		VisitDB: database.NewVisit(db),
+		AdoptDB: database.NewAdopt(db),
 	}
 }
 
@@ -412,6 +415,7 @@ func (h *PetHandler) ScheduleVisit(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(Response{Error: true, Message: "Invalid request"})
 	}
 
+	// this id is the user that to be adopt
 	userID, err := getUserIdFromCtx(c)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(Response{
@@ -479,5 +483,96 @@ func (h *PetHandler) ScheduleVisit(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusCreated).JSON(Response{
 		Error:   false,
 		Message: "visit scheduler on success",
+	})
+}
+
+// ConfirmAdopt is a handler that pet adoption flow,
+// the user who owns the pet who completes the flow based on the visa table for the pet
+func (h *PetHandler) ConfirmAdopt(c *fiber.Ctx) error {
+	petId, err := strconv.Atoi(c.Params("id"))
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(Response{Error: true, Message: "invalid pet id"})
+	}
+
+	// this'id owner user pet
+	userID, err := getUserIdFromCtx(c)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(Response{
+			Error:   true,
+			Message: err.Error(),
+		})
+	}
+
+	pet, err := h.PetDB.GetByID(petId, userID)
+	if err != nil {
+		if strings.Contains(err.Error(), ERRRecordNotFound) {
+			return c.Status(fiber.StatusNotFound).JSON(Response{
+				Error:   true,
+				Message: "pet not found",
+			})
+		}
+
+		return c.Status(fiber.StatusInternalServerError).JSON(Response{
+			Error:   true,
+			Message: ERRInternalServerError,
+		})
+	}
+
+	visit, err := h.VisitDB.GetByPetID(pet.ID)
+	if err != nil {
+		if strings.Contains(err.Error(), ERRRecordNotFound) {
+			return c.Status(fiber.StatusNotFound).JSON(Response{
+				Error:   true,
+				Message: fmt.Sprintf("`%s` doesn't have visit schedule!", pet.Name),
+			})
+		}
+
+		return c.Status(fiber.StatusInternalServerError).JSON(Response{
+			Error:   true,
+			Message: ERRInternalServerError,
+		})
+	}
+
+	// check if the user scheduling the visit is the same owner of the pet
+	if visit.UserID == pet.UserID {
+		return c.Status(fiber.StatusNotFound).JSON(Response{
+			Error:   true,
+			Message: "You can't adopt your owner pet!",
+		})
+	}
+
+	petID, oldOwnerID, newOwnerID := pet.ID, pet.UserID, visit.UserID
+	adoptData := model.NewAdoption(uint(petID), oldOwnerID, newOwnerID)
+
+	err = h.AdoptDB.Create(adoptData)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(Response{
+			Error:   true,
+			Message: ERRInternalServerError,
+		})
+	}
+
+	// complete visit status
+	if err := h.VisitDB.UpdateStatus(visit.ID, "completed"); err != nil {
+		log.Errorf("error on update status visit: err %v", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(Response{
+			Error:   true,
+			Message: ERRInternalServerError,
+		})
+	}
+
+	// update available pet field
+	err = h.PetDB.UpdateAvailability(pet.ID, false)
+	if err != nil {
+		log.Errorf("error on update status pet: err %v", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(Response{
+			Error:   true,
+			Message: ERRInternalServerError,
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(Response{
+		Error:   false,
+		Message: "Congratulations adoption completed successfully",
 	})
 }
