@@ -31,4 +31,5 @@ type VisitInterface interface {
 // AdoptInterface is a model for adopt pet struct
 type AdoptInterface interface {
 	Create(adopt *model.Adoption) error
+	GetAdoptionsByUserID(userID uint) ([]model.Adoption, error)
 }
