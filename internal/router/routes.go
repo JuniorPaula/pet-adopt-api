@@ -3,6 +3,7 @@ package router
 import (
 	"get_pet/internal/handler"
 	"get_pet/internal/middleware"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -23,6 +24,14 @@ func BootstrapRouter(app *fiber.App, db *gorm.DB) {
 		AllowHeaders:     "Origin, Content-Type, Accept",
 		AllowCredentials: true,
 	}))
+
+	/* setup statics images files*/
+	app.Static("/uploads", "./uploads", fiber.Static{
+		Compress:      true,
+		ByteRange:     true,
+		Index:         "",
+		CacheDuration: 10 * time.Minute,
+	})
 
 	api := app.Group("/api")
 
