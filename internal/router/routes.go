@@ -21,7 +21,7 @@ func BootstrapRouter(app *fiber.App, db *gorm.DB) {
 	/* setup cors*/
 	app.Use(cors.New(cors.Config{
 		AllowOrigins:     "http://localhost:3000",
-		AllowHeaders:     "Origin, Content-Type, Accept",
+		AllowHeaders:     "Origin, Content-Type, Accept, Authorization",
 		AllowCredentials: true,
 	}))
 
