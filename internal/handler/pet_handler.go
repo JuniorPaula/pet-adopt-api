@@ -168,6 +168,37 @@ func (h *PetHandler) GetAllByUserID(c *fiber.Ctx) error {
 }
 
 func (h *PetHandler) GetByID(c *fiber.Ctx) error {
+	petId, err := strconv.Atoi(c.Params("id"))
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(Response{
+			Error:   true,
+			Message: ERRInternalServerError,
+		})
+	}
+
+	pet, err := h.PetDB.GetByID(petId, 0)
+	if err != nil {
+		if strings.Contains(err.Error(), ERRRecordNotFound) {
+			return c.Status(fiber.StatusNotFound).JSON(Response{
+				Error:   true,
+				Message: "pet not found",
+			})
+		}
+
+		return c.Status(fiber.StatusInternalServerError).JSON(Response{
+			Error:   true,
+			Message: ERRInternalServerError,
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(Response{
+		Error:   false,
+		Message: "success",
+		Data:    pet,
+	})
+}
+
+func (h *PetHandler) GetMyPetByID(c *fiber.Ctx) error {
 	id, err := strconv.Atoi(c.Params("id"))
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(Response{

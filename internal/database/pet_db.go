@@ -55,9 +55,19 @@ func (p *PetDB) GetAllByUserID(userID, page, limit int, sort string) ([]model.Pe
 	return pets, err
 }
 
+// GetByID is a repository method to get a pet, if user_id is provided
+// than return a pet these user, outhersize return a pet.
+// provider user_id, if wanna get a your pet, if not set zero
 func (p *PetDB) GetByID(ID, userID int) (*model.Pet, error) {
 	var pet model.Pet
-	err := p.DB.Preload("Owner").Where("id = ? AND user_id = ?", ID, userID).First(&pet).Error
+	var err error
+
+	if userID > 0 {
+		err = p.DB.Preload("Owner").Where("id = ? AND user_id = ?", ID, userID).First(&pet).Error
+	} else {
+		err = p.DB.Preload("Owner").Where("id = ?", ID).First(&pet).Error
+	}
+
 	if err != nil {
 		return nil, err
 	}
