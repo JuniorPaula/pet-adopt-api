@@ -517,6 +517,46 @@ func (h *PetHandler) ScheduleVisit(c *fiber.Ctx) error {
 	})
 }
 
+func (h *PetHandler) GetVisitSchedule(c *fiber.Ctx) error {
+	petId, err := strconv.Atoi(c.Params("id"))
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(Response{Error: true, Message: "invalid pet id"})
+	}
+
+	// this'id owner user pet
+	userID, err := getUserIdFromCtx(c)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(Response{
+			Error:   true,
+			Message: err.Error(),
+		})
+	}
+
+	// TODO: return pet data on visit schedule, make left join query
+	visit, err := h.VisitDB.GetByPetID(petId)
+	if err != nil {
+		if strings.Contains(err.Error(), ERRInternalServerError) {
+			return c.Status(fiber.StatusInternalServerError).JSON(Response{
+				Error:   true,
+				Message: ERRInternalServerError,
+			})
+		}
+	}
+
+	if visit != nil && visit.UserID == uint(userID) {
+		return c.Status(fiber.StatusBadRequest).JSON(Response{
+			Error:   true,
+			Message: "visit already exists",
+		})
+	}
+
+	// TODO: return pet data on visit schedule
+	return c.Status(fiber.StatusOK).JSON(Response{
+		Error:   false,
+		Message: "success",
+	})
+}
+
 // ConfirmAdopt is a handler that pet adoption flow,
 // the user who owns the pet who completes the flow based on the visa table for the pet
 func (h *PetHandler) ConfirmAdopt(c *fiber.Ctx) error {
