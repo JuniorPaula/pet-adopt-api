@@ -40,7 +40,10 @@ func (vd *VisitDB) UpdateStatus(ID int, status string) error {
 
 func (vd *VisitDB) GetVisitsByUserID(userID uint) ([]model.Visit, error) {
 	var visits []model.Visit
-	err := vd.DB.Where("user_id = ?", userID).Preload("Pet").Find(&visits).Error
+	err := vd.DB.Where("user_id = ?", userID).Preload("Pet", func(db *gorm.DB) *gorm.DB {
+		return db.Preload("Owner")
+	}).Find(&visits).Error
+
 	if err != nil {
 		return nil, err
 	}
