@@ -37,3 +37,13 @@ func (vd *VisitDB) Update(visit *model.Visit, newData interface{}) error {
 func (vd *VisitDB) UpdateStatus(ID int, status string) error {
 	return vd.DB.Model(&model.Visit{}).Where("id = ?", ID).Update("status", status).Error
 }
+
+func (vd *VisitDB) GetVisitsByUserID(userID uint) ([]model.Visit, error) {
+	var visits []model.Visit
+	err := vd.DB.Where("user_id = ?", userID).Preload("Pet").Find(&visits).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return visits, nil
+}

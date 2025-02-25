@@ -3,6 +3,7 @@ package router
 import (
 	"get_pet/internal/handler"
 	"get_pet/internal/middleware"
+	"os"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -20,7 +21,7 @@ func BootstrapRouter(app *fiber.App, db *gorm.DB) {
 
 	/* setup cors*/
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:     "http://localhost:3000",
+		AllowOrigins:     os.Getenv("WEB_URL"),
 		AllowHeaders:     "Origin, Content-Type, Accept, Authorization",
 		AllowCredentials: true,
 	}))
@@ -39,6 +40,7 @@ func BootstrapRouter(app *fiber.App, db *gorm.DB) {
 	authHandler := handler.NewAuthHandler(db)
 	petHandler := handler.NewPetHandler(db)
 	adoptionHandler := handler.NewAdoptionHandler(db)
+	visitHandler := handler.NewVisitHandler(db)
 
 	/* publics routes */
 	api.Post("/register", userHandler.Register)
@@ -65,4 +67,8 @@ func BootstrapRouter(app *fiber.App, db *gorm.DB) {
 	/* adoptions routes*/
 	adoptRouter := api.Group("/adopts", middleware.AuthMiddleware)
 	adoptRouter.Get("/", adoptionHandler.GetUserAdoptions)
+
+	/* visits routes */
+	visitRouter := api.Group("/visits", middleware.AuthMiddleware)
+	visitRouter.Get("/", visitHandler.GetUserVisits)
 }

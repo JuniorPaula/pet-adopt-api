@@ -24,6 +24,7 @@ type PetInterface interface {
 type VisitInterface interface {
 	Create(visit *model.Visit) error
 	GetByPetID(petID int) (*model.Visit, error)
+	GetVisitsByUserID(userID uint) ([]model.Visit, error)
 	Update(visit *model.Visit, newData interface{}) error
 	UpdateStatus(ID int, status string) error
 }

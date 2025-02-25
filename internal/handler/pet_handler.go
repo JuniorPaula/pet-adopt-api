@@ -432,6 +432,8 @@ func (h *PetHandler) RemovePetImages(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(Response{Error: false, Message: "upload image succeed"})
 }
 
+// ScheduleVisit is a handler that pet visit schedule flow,
+// the user who wants to adopt the pet schedules a visit to the pet owner
 func (h *PetHandler) ScheduleVisit(c *fiber.Ctx) error {
 	petId, err := strconv.Atoi(c.Params("id"))
 	if err != nil {
@@ -517,6 +519,8 @@ func (h *PetHandler) ScheduleVisit(c *fiber.Ctx) error {
 	})
 }
 
+// GetVisitSchedule is a handler that get pet visit schedule flow,
+// return the pet data if the visit schedule is available
 func (h *PetHandler) GetVisitSchedule(c *fiber.Ctx) error {
 	petId, err := strconv.Atoi(c.Params("id"))
 	if err != nil {
