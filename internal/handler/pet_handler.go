@@ -503,7 +503,7 @@ func (h *PetHandler) ScheduleVisit(c *fiber.Ctx) error {
 		})
 	}
 
-	newVisit := model.NewVisit(userID, petId, "pending")
+	newVisit := model.NewVisit(userID, petId, visitData.PetOwnerID, "pending")
 
 	err = h.VisitDB.Create(newVisit)
 	if err != nil {
