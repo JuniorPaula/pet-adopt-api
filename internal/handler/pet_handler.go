@@ -457,7 +457,7 @@ func (h *PetHandler) ScheduleVisit(c *fiber.Ctx) error {
 		})
 	}
 
-	visit, err := h.VisitDB.GetByPetID(petId)
+	visit, err := h.VisitDB.GetVisitByPetIDAndUserID(petId, uint(userID))
 	if err != nil {
 		if strings.Contains(err.Error(), ERRInternalServerError) {
 			return c.Status(fiber.StatusInternalServerError).JSON(Response{
@@ -537,7 +537,7 @@ func (h *PetHandler) GetVisitSchedule(c *fiber.Ctx) error {
 	}
 
 	// TODO: return pet data on visit schedule, make left join query
-	visit, err := h.VisitDB.GetByPetID(petId)
+	visit, err := h.VisitDB.GetVisitByPetIDAndUserID(petId, uint(userID))
 	if err != nil {
 		if strings.Contains(err.Error(), ERRInternalServerError) {
 			return c.Status(fiber.StatusInternalServerError).JSON(Response{
@@ -593,7 +593,7 @@ func (h *PetHandler) ConfirmAdopt(c *fiber.Ctx) error {
 		})
 	}
 
-	visit, err := h.VisitDB.GetByPetID(pet.ID)
+	visit, err := h.VisitDB.GetVisitByPetIDAndUserID(pet.ID, uint(userID))
 	if err != nil {
 		if strings.Contains(err.Error(), ERRRecordNotFound) {
 			return c.Status(fiber.StatusNotFound).JSON(Response{

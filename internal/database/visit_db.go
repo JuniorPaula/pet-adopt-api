@@ -20,9 +20,11 @@ func (vd *VisitDB) Create(visit *model.Visit) error {
 	return vd.DB.Create(visit).Error
 }
 
-func (vd *VisitDB) GetByPetID(petID int) (*model.Visit, error) {
+// GetVisitByPetIDAndUserID get visit by pet id and user id
+// return a visit to the user
+func (vd *VisitDB) GetVisitByPetIDAndUserID(petID int, userID uint) (*model.Visit, error) {
 	var v *model.Visit
-	err := vd.DB.Where("pet_id = ?", petID).First(&v).Error
+	err := vd.DB.Where("pet_id = ? AND user_id = ?", petID, userID).First(&v).Error
 	if err != nil {
 		return nil, err
 	}
