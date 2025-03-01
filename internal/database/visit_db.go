@@ -20,6 +20,18 @@ func (vd *VisitDB) Create(visit *model.Visit) error {
 	return vd.DB.Create(visit).Error
 }
 
+// GetVisitByID get visit by id
+// return a visit to the user
+func (vd *VisitDB) GetVisitByID(ID int) (*model.Visit, error) {
+	var v *model.Visit
+	err := vd.DB.Where("id = ?", ID).First(&v).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return v, nil
+}
+
 // GetVisitByPetIDAndUserID get visit by pet id and user id
 // return a visit to the user
 func (vd *VisitDB) GetVisitByPetIDAndUserID(petID int, userID uint) (*model.Visit, error) {
