@@ -11,6 +11,7 @@ var (
 	ERRUniqueConstraint    = "SQLSTATE 23505"
 	ERRInternalServerError = "Internal Server Error"
 	ERRRecordNotFound      = "record not found"
+	ERRBadRequest          = "bad request"
 )
 
 // Response to formalize http response data
