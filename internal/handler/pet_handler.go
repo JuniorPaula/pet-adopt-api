@@ -433,7 +433,7 @@ func (h *PetHandler) RemovePetImages(c *fiber.Ctx) error {
 }
 
 // ScheduleVisit is a handler that pet visit schedule flow,
-// the user who wants to adopt the pet schedules a visit to the pet owner
+// the user (adopter) who wants to adopt the pet schedules a visit to the pet owner
 func (h *PetHandler) ScheduleVisit(c *fiber.Ctx) error {
 	petId, err := strconv.Atoi(c.Params("id"))
 	if err != nil {
@@ -570,7 +570,7 @@ func (h *PetHandler) ConfirmAdopt(c *fiber.Ctx) error {
 	}
 
 	// this'id owner user pet
-	userID, err := getUserIdFromCtx(c)
+	ownerID, err := getUserIdFromCtx(c)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(Response{
 			Error:   true,
@@ -578,7 +578,7 @@ func (h *PetHandler) ConfirmAdopt(c *fiber.Ctx) error {
 		})
 	}
 
-	pet, err := h.PetDB.GetByID(petId, userID)
+	pet, err := h.PetDB.GetByID(petId, ownerID)
 	if err != nil {
 		if strings.Contains(err.Error(), ERRRecordNotFound) {
 			return c.Status(fiber.StatusNotFound).JSON(Response{
@@ -593,7 +593,7 @@ func (h *PetHandler) ConfirmAdopt(c *fiber.Ctx) error {
 		})
 	}
 
-	visit, err := h.VisitDB.GetVisitByPetIDAndUserID(pet.ID, uint(userID))
+	visit, err := h.VisitDB.GetVisitByPetIDAndUserID(pet.ID, uint(ownerID))
 	if err != nil {
 		if strings.Contains(err.Error(), ERRRecordNotFound) {
 			return c.Status(fiber.StatusNotFound).JSON(Response{

@@ -16,8 +16,8 @@ func NewVisitHandler(db *gorm.DB) *VisitHandler {
 	return &VisitHandler{VisitDB: database.NewVisit(db)}
 }
 
-func (h *VisitHandler) GetUserVisits(c *fiber.Ctx) error {
-	userID, err := getUserIdFromCtx(c)
+func (h *VisitHandler) GetAdopterVisits(c *fiber.Ctx) error {
+	adopterID, err := getUserIdFromCtx(c)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(Response{
 			Error:   true,
@@ -25,7 +25,7 @@ func (h *VisitHandler) GetUserVisits(c *fiber.Ctx) error {
 		})
 	}
 
-	visits, err := h.VisitDB.GetVisitsByUserID(uint(userID))
+	visits, err := h.VisitDB.GetVisitsByAdoperID(uint(adopterID))
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(Response{Error: true, Message: ERRInternalServerError})
 	}
@@ -36,7 +36,7 @@ func (h *VisitHandler) GetUserVisits(c *fiber.Ctx) error {
 // GetOwnerVisits get all visits by owner id
 // owner is able to see all visits that have been made to their pets
 func (h *VisitHandler) GetOwnerVisits(c *fiber.Ctx) error {
-	userID, err := getUserIdFromCtx(c)
+	ownerID, err := getUserIdFromCtx(c)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(Response{
 			Error:   true,
@@ -44,7 +44,7 @@ func (h *VisitHandler) GetOwnerVisits(c *fiber.Ctx) error {
 		})
 	}
 
-	visits, err := h.VisitDB.GetVisitsByOwnerID(uint(userID))
+	visits, err := h.VisitDB.GetVisitsByOwnerID(uint(ownerID))
 	if err != nil {
 		if strings.Contains(err.Error(), "(SQLSTATE 42703)") {
 			return c.Status(fiber.StatusNotFound).JSON(Response{Error: true, Message: ERRRecordNotFound})

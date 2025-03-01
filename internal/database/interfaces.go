@@ -15,7 +15,7 @@ type PetInterface interface {
 	GetAll(page, limit int, sort string) ([]model.Pet, error)
 	GetAllByUserID(userID, page, limit int, sort string) ([]model.Pet, error)
 	GetByID(ID, userID int) (*model.Pet, error)
-	Update(pet *model.Pet, newPet interface{}) error
+	Update(pet *model.Pet, newPet any) error
 	UpdateImages(ID int, images []string) error
 	UpdateAvailability(petID int, available bool) error
 }
@@ -24,9 +24,9 @@ type PetInterface interface {
 type VisitInterface interface {
 	Create(visit *model.Visit) error
 	GetVisitByPetIDAndUserID(petID int, userID uint) (*model.Visit, error)
-	GetVisitsByUserID(userID uint) ([]model.Visit, error)
+	GetVisitsByAdoperID(adopterID uint) ([]model.Visit, error)
 	GetVisitsByOwnerID(ownerID uint) ([]model.Visit, error)
-	Update(visit *model.Visit, newData interface{}) error
+	Update(visit *model.Visit, newData any) error
 	UpdateStatus(ID int, status string) error
 }
 

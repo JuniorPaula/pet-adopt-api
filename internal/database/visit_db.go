@@ -32,7 +32,7 @@ func (vd *VisitDB) GetVisitByPetIDAndUserID(petID int, userID uint) (*model.Visi
 	return v, nil
 }
 
-func (vd *VisitDB) Update(visit *model.Visit, newData interface{}) error {
+func (vd *VisitDB) Update(visit *model.Visit, newData any) error {
 	return vd.DB.Model(&visit).Where("id = ?", visit.ID).Updates(newData).Error
 }
 
@@ -40,12 +40,12 @@ func (vd *VisitDB) UpdateStatus(ID int, status string) error {
 	return vd.DB.Model(&model.Visit{}).Where("id = ?", ID).Update("status", status).Error
 }
 
-// GetVisitsByUserID get all visits by user id
+// GetVisitsByAdoperID get all visits by adopter id
 // user is able to see all visits that they have
-// return a list of visits that the user has made to the pets
-func (vd *VisitDB) GetVisitsByUserID(userID uint) ([]model.Visit, error) {
+// return a list of visits that the adopter has made to the pets
+func (vd *VisitDB) GetVisitsByAdoperID(adopterID uint) ([]model.Visit, error) {
 	var visits []model.Visit
-	err := vd.DB.Where("user_id = ?", userID).Preload("Pet", func(db *gorm.DB) *gorm.DB {
+	err := vd.DB.Where("user_id = ?", adopterID).Preload("Pet", func(db *gorm.DB) *gorm.DB {
 		return db.Preload("Owner")
 	}).Find(&visits).Error
 
