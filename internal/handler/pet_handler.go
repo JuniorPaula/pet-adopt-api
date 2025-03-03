@@ -527,8 +527,8 @@ func (h *PetHandler) GetVisitSchedule(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(Response{Error: true, Message: "invalid pet id"})
 	}
 
-	// this'id owner user pet
-	userID, err := getUserIdFromCtx(c)
+	// this'id adopter user pet
+	adoptID, err := getUserIdFromCtx(c)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(Response{
 			Error:   true,
@@ -536,8 +536,7 @@ func (h *PetHandler) GetVisitSchedule(c *fiber.Ctx) error {
 		})
 	}
 
-	// TODO: return pet data on visit schedule, make left join query
-	visit, err := h.VisitDB.FindVisitShceduledByAdopterID(petId, uint(userID))
+	visit, err := h.VisitDB.FindVisitShceduledByAdopterID(petId, uint(adoptID))
 	if err != nil {
 		if strings.Contains(err.Error(), ERRInternalServerError) {
 			return c.Status(fiber.StatusInternalServerError).JSON(Response{
@@ -547,17 +546,10 @@ func (h *PetHandler) GetVisitSchedule(c *fiber.Ctx) error {
 		}
 	}
 
-	if visit != nil && visit.UserID == uint(userID) {
-		return c.Status(fiber.StatusBadRequest).JSON(Response{
-			Error:   true,
-			Message: "visit already exists",
-		})
-	}
-
-	// TODO: return pet data on visit schedule
 	return c.Status(fiber.StatusOK).JSON(Response{
 		Error:   false,
 		Message: "success",
+		Data:    visit,
 	})
 }
 
