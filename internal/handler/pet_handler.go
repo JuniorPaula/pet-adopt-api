@@ -457,7 +457,7 @@ func (h *PetHandler) ScheduleVisit(c *fiber.Ctx) error {
 		})
 	}
 
-	visit, err := h.VisitDB.GetVisitByPetIDAndUserID(petId, uint(userID))
+	visit, err := h.VisitDB.FindVisitShceduledByAdopterID(petId, uint(userID))
 	if err != nil {
 		if strings.Contains(err.Error(), ERRInternalServerError) {
 			return c.Status(fiber.StatusInternalServerError).JSON(Response{
@@ -537,7 +537,7 @@ func (h *PetHandler) GetVisitSchedule(c *fiber.Ctx) error {
 	}
 
 	// TODO: return pet data on visit schedule, make left join query
-	visit, err := h.VisitDB.GetVisitByPetIDAndUserID(petId, uint(userID))
+	visit, err := h.VisitDB.FindVisitShceduledByAdopterID(petId, uint(userID))
 	if err != nil {
 		if strings.Contains(err.Error(), ERRInternalServerError) {
 			return c.Status(fiber.StatusInternalServerError).JSON(Response{
@@ -593,7 +593,7 @@ func (h *PetHandler) ConfirmAdopt(c *fiber.Ctx) error {
 		})
 	}
 
-	visit, err := h.VisitDB.GetVisitByPetIDAndUserID(pet.ID, uint(ownerID))
+	visit, err := h.VisitDB.FindVisitShceduledByOnwerID(pet.ID, uint(ownerID))
 	if err != nil {
 		if strings.Contains(err.Error(), ERRRecordNotFound) {
 			return c.Status(fiber.StatusNotFound).JSON(Response{
@@ -605,14 +605,6 @@ func (h *PetHandler) ConfirmAdopt(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(Response{
 			Error:   true,
 			Message: ERRInternalServerError,
-		})
-	}
-
-	// check if the user scheduling the visit is the same owner of the pet
-	if visit.UserID == pet.UserID {
-		return c.Status(fiber.StatusNotFound).JSON(Response{
-			Error:   true,
-			Message: "You can't adopt your owner pet!",
 		})
 	}
 

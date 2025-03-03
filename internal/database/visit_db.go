@@ -32,11 +32,21 @@ func (vd *VisitDB) GetVisitByID(ID int) (*model.Visit, error) {
 	return v, nil
 }
 
-// GetVisitByPetIDAndUserID get visit by pet id and user id
+// FindVisitShceduledByAdopterID find the visit by pet id and adopter id
 // return a visit to the user
-func (vd *VisitDB) GetVisitByPetIDAndUserID(petID int, userID uint) (*model.Visit, error) {
+func (vd *VisitDB) FindVisitShceduledByAdopterID(petID int, adopterID uint) (*model.Visit, error) {
 	var v *model.Visit
-	err := vd.DB.Where("pet_id = ? AND user_id = ?", petID, userID).First(&v).Error
+	err := vd.DB.Where("pet_id = ? AND user_id = ?", petID, adopterID).First(&v).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return v, nil
+}
+
+func (vd *VisitDB) FindVisitShceduledByOnwerID(petID int, ownerID uint) (*model.Visit, error) {
+	var v *model.Visit
+	err := vd.DB.Where("pet_id = ? AND owner_pet_id = ?", petID, ownerID).First(&v).Error
 	if err != nil {
 		return nil, err
 	}

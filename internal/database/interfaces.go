@@ -24,7 +24,8 @@ type PetInterface interface {
 type VisitInterface interface {
 	Create(visit *model.Visit) error
 	GetVisitByID(ID int) (*model.Visit, error)
-	GetVisitByPetIDAndUserID(petID int, userID uint) (*model.Visit, error)
+	FindVisitShceduledByAdopterID(petID int, userID uint) (*model.Visit, error)
+	FindVisitShceduledByOnwerID(petID int, ownerID uint) (*model.Visit, error)
 	GetVisitsByAdoperID(adopterID uint) ([]model.Visit, error)
 	GetVisitsByOwnerID(ownerID uint) ([]model.Visit, error)
 	Update(visit *model.Visit, newData any) error
