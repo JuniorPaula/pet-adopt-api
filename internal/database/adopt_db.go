@@ -28,3 +28,12 @@ func (r *AdoptDB) GetAdoptionsByUserID(userID uint) ([]model.Adoption, error) {
 	}
 	return adoptions, nil
 }
+
+func (r *AdoptDB) FindAdoptionByPetIDAndAdopterID(petID int, adoptID uint) (*model.Adoption, error) {
+	var adopt *model.Adoption
+	err := r.DB.Preload("OldOwner").Preload("Adopter").Where("pet_id = ? AND adopter_id = ?", petID, adoptID).Preload("Pet").First(&adopt).Error
+	if err != nil {
+		return nil, err
+	}
+	return adopt, nil
+}

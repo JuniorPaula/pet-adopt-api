@@ -36,4 +36,5 @@ type VisitInterface interface {
 type AdoptInterface interface {
 	Create(adopt *model.Adoption) error
 	GetAdoptionsByUserID(userID uint) ([]model.Adoption, error)
+	FindAdoptionByPetIDAndAdopterID(petID int, adoptID uint) (*model.Adoption, error)
 }
