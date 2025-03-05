@@ -32,7 +32,7 @@ func (p *PetDB) GetAll(page, limit int, sort string) ([]model.Pet, error) {
 	if page != 0 && limit != 0 {
 		err = p.DB.Preload("Owner").Limit(limit).Offset((page - 1) * limit).Order("created_at " + sort).Find(&pets).Error
 	} else {
-		err = p.DB.Preload("Owner").Find(&pets).Error
+		err = p.DB.Preload("Owner").Order("id desc").Find(&pets).Error
 	}
 
 	return pets, err
