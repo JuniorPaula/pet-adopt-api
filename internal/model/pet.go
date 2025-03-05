@@ -13,8 +13,8 @@ type Pet struct {
 	ID        int         `json:"id"`
 	UserID    uint        `json:"user_id"`
 	Name      string      `json:"name" gorm:"type:varchar(50);not null"`
-	Age       int         `json:"age" gorm:"not null"`
-	Weight    float64     `json:"weight" gorm:"not null"`
+	Age       string      `json:"age" gorm:"type:varchar(30); not null"`
+	Weight    string      `json:"weight" gorm:"type:varchar(30); not null"`
 	Size      string      `json:"size" gorm:"type:varchar(20)"`
 	Color     string      `json:"color" gorm:"type:varchar(30)"`
 	Images    StringArray `json:"images" gorm:"type:jsonb"`
@@ -26,7 +26,7 @@ type Pet struct {
 	Owner User `json:"owner" gorm:"foreignKey:UserID"`
 }
 
-func NewPet(userID, age int, weight float64, name, size, color string, images []string) *Pet {
+func NewPet(userID int, age, weight, name, size, color string, images []string) *Pet {
 	return &Pet{
 		UserID: uint(userID),
 		Name:   name,
@@ -42,14 +42,17 @@ func (p *Pet) ValidateFields() error {
 	if p.Name == "" {
 		return errors.New("pet name is required")
 	}
-	if p.Age <= 0 {
+	if p.Age == "" {
 		return errors.New("pet age is required")
 	}
-	if p.Weight <= 0 {
+	if p.Weight == "" {
 		return errors.New("pet wight is required")
 	}
-	if len(p.Images) <= 0 {
-		return errors.New("pet image is required")
+	if p.Size == "" {
+		return errors.New("pet size is required")
+	}
+	if p.Color == "" {
+		return errors.New("pet color is required")
 	}
 	return nil
 }

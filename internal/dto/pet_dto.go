@@ -2,18 +2,18 @@ package dto
 
 type CreatePetDto struct {
 	Name   string   `json:"name"`
-	Age    int      `json:"age"`
-	Weight float64  `json:"weight"`
+	Age    string   `json:"age"`
+	Weight string   `json:"weight"`
 	Size   string   `json:"size"`
 	Color  string   `json:"color"`
 	Images []string `json:"images"`
 }
 
 type UpdatePetDto struct {
-	Name      string  `json:"name"`
-	Age       int     `json:"age"`
-	Weight    float64 `json:"weight"`
-	Size      string  `json:"size"`
-	Color     string  `json:"color"`
-	Available *bool   `json:"available"`
+	Name      string `json:"name"`
+	Age       string `json:"age"`
+	Weight    string `json:"weight"`
+	Size      string `json:"size"`
+	Color     string `json:"color"`
+	Available *bool  `json:"available"`
 }
