@@ -86,6 +86,13 @@ func (h *PetHandler) Create(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(Response{Error: true, Message: err.Error()})
 	}
 
+	if body.Description != "" {
+		if len(body.Description) > pet.GetlimitDescription() {
+			return c.Status(fiber.StatusBadRequest).JSON(Response{Error: true, Message: "description too long"})
+		}
+		pet.Description = body.Description
+	}
+
 	err = h.PetDB.Create(pet)
 	if err != nil {
 		if len(savedFiles) > 0 {
@@ -274,7 +281,7 @@ func (h *PetHandler) Update(c *fiber.Ctx) error {
 		})
 	}
 
-	updateFields := map[string]interface{}{}
+	updateFields := map[string]any{}
 
 	if body.Name != "" {
 		updateFields["name"] = body.Name
@@ -293,6 +300,13 @@ func (h *PetHandler) Update(c *fiber.Ctx) error {
 	}
 	if body.Available != nil {
 		updateFields["Available"] = *body.Available
+	}
+	if body.Description != "" {
+		if len(body.Description) > pet.GetlimitDescription() {
+			return c.Status(fiber.StatusBadRequest).JSON(Response{Error: true, Message: "description too long"})
+		}
+
+		updateFields["Description"] = body.Description
 	}
 
 	err = h.PetDB.Update(pet, updateFields)

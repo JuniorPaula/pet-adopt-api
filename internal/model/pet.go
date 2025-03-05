@@ -10,15 +10,16 @@ import (
 type StringArray []string
 
 type Pet struct {
-	ID        int         `json:"id"`
-	UserID    uint        `json:"user_id"`
-	Name      string      `json:"name" gorm:"type:varchar(50);not null"`
-	Age       string      `json:"age" gorm:"type:varchar(30); not null"`
-	Weight    string      `json:"weight" gorm:"type:varchar(30); not null"`
-	Size      string      `json:"size" gorm:"type:varchar(20)"`
-	Color     string      `json:"color" gorm:"type:varchar(30)"`
-	Images    StringArray `json:"images" gorm:"type:jsonb"`
-	Available bool        `json:"available" gorm:"default:true"`
+	ID          int         `json:"id"`
+	UserID      uint        `json:"user_id"`
+	Name        string      `json:"name" gorm:"type:varchar(50);not null"`
+	Age         string      `json:"age" gorm:"type:varchar(30); not null"`
+	Weight      string      `json:"weight" gorm:"type:varchar(30); not null"`
+	Size        string      `json:"size" gorm:"type:varchar(20)"`
+	Color       string      `json:"color" gorm:"type:varchar(30)"`
+	Images      StringArray `json:"images" gorm:"type:jsonb"`
+	Available   bool        `json:"available" gorm:"default:true"`
+	Description string      `json:"description" gorm:"type:text"`
 
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
@@ -73,4 +74,10 @@ func (s *StringArray) Scan(value interface{}) error {
 	}
 
 	return json.Unmarshal(bytes, s)
+}
+
+const defaultLimitDescription = 1000
+
+func (p *Pet) GetlimitDescription() int {
+	return defaultLimitDescription
 }
