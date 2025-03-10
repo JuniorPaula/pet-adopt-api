@@ -651,3 +651,49 @@ func (h *PetHandler) ConfirmAdopt(c *fiber.Ctx) error {
 		Message: "Congratulations adoption completed successfully",
 	})
 }
+
+// Delete is a handle to soft pet remove
+func (h *PetHandler) Delete(c *fiber.Ctx) error {
+	petId, err := strconv.Atoi(c.Params("id"))
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(Response{Error: true, Message: "invalid pet id"})
+	}
+
+	// this'id owner user pet
+	ownerID, err := getUserIdFromCtx(c)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(Response{
+			Error:   true,
+			Message: err.Error(),
+		})
+	}
+
+	_, err = h.PetDB.GetByID(petId, ownerID)
+	if err != nil {
+		if strings.Contains(err.Error(), ERRRecordNotFound) {
+			return c.Status(fiber.StatusNotFound).JSON(Response{
+				Error:   true,
+				Message: "pet not found",
+			})
+		}
+
+		return c.Status(fiber.StatusInternalServerError).JSON(Response{
+			Error:   true,
+			Message: ERRInternalServerError,
+		})
+	}
+
+	err = h.PetDB.SoftRemove(petId)
+	if err != nil {
+		log.Errorf("Error on remove pet %v\n", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(Response{
+			Error:   true,
+			Message: ERRInternalServerError,
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(Response{
+		Error:   false,
+		Message: "pet removed on success",
+	})
+}

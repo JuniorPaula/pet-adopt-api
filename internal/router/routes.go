@@ -63,6 +63,7 @@ func BootstrapRouter(app *fiber.App, db *gorm.DB) {
 	petRouter.Post("/:id/scheduler", petHandler.ScheduleVisit)
 	petRouter.Get("/:id/scheduler", petHandler.GetVisitSchedule)
 	petRouter.Post("/:id/adopt", petHandler.ConfirmAdopt)
+	petRouter.Delete("/:id", petHandler.Delete)
 
 	/* adoptions routes*/
 	adoptRouter := api.Group("/adopts", middleware.AuthMiddleware)
