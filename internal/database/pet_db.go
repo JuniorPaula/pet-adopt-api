@@ -3,6 +3,7 @@ package database
 import (
 	"encoding/json"
 	"get_pet/internal/model"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -30,9 +31,9 @@ func (p *PetDB) GetAll(page, limit int, sort string) ([]model.Pet, error) {
 	}
 
 	if page != 0 && limit != 0 {
-		err = p.DB.Preload("Owner").Limit(limit).Offset((page - 1) * limit).Order("created_at " + sort).Find(&pets).Error
+		err = p.DB.Preload("Owner").Limit(limit).Offset((page - 1) * limit).Where("deleted_at IS NULL").Order("created_at " + sort).Find(&pets).Error
 	} else {
-		err = p.DB.Preload("Owner").Order("id desc").Find(&pets).Error
+		err = p.DB.Preload("Owner").Where("deleted_at IS NULL").Order("id desc").Find(&pets).Error
 	}
 
 	return pets, err
@@ -47,9 +48,9 @@ func (p *PetDB) GetAllByUserID(userID, page, limit int, sort string) ([]model.Pe
 	}
 
 	if page != 0 && limit != 0 {
-		err = p.DB.Preload("Owner").Where("user_id = ?", userID).Limit(limit).Offset((page - 1) * limit).Order("created_at " + sort).Find(&pets).Error
+		err = p.DB.Preload("Owner").Where("user_id = ? AND deleted_at IS NULL", userID).Limit(limit).Offset((page - 1) * limit).Order("created_at " + sort).Find(&pets).Error
 	} else {
-		err = p.DB.Preload("Owner").Where("user_id = ?", userID).Find(&pets).Error
+		err = p.DB.Preload("Owner").Where("user_id = ? AND deleted_at IS NULL", userID).Find(&pets).Error
 	}
 
 	return pets, err
@@ -63,9 +64,9 @@ func (p *PetDB) GetByID(ID, userID int) (*model.Pet, error) {
 	var err error
 
 	if userID > 0 {
-		err = p.DB.Preload("Owner").Where("id = ? AND user_id = ?", ID, userID).First(&pet).Error
+		err = p.DB.Preload("Owner").Where("id = ? AND user_id = ? AND deleted_at IS NULL", ID, userID).First(&pet).Error
 	} else {
-		err = p.DB.Preload("Owner").Where("id = ?", ID).First(&pet).Error
+		err = p.DB.Preload("Owner").Where("id = ? AND deleted_at IS NULL", ID).First(&pet).Error
 	}
 
 	if err != nil {
@@ -90,4 +91,8 @@ func (p *PetDB) UpdateImages(ID int, images []string) error {
 
 func (p *PetDB) UpdateAvailability(petID int, available bool) error {
 	return p.DB.Model(&model.Pet{}).Where("id = ?", petID).Update("available", available).Error
+}
+
+func (p *PetDB) SoftRemove(petID int) error {
+	return p.DB.Model(&model.Pet{}).Where("id = ?", petID).Update("deleted_at", time.Now()).Error
 }

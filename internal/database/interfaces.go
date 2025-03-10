@@ -18,6 +18,7 @@ type PetInterface interface {
 	Update(pet *model.Pet, newPet any) error
 	UpdateImages(ID int, images []string) error
 	UpdateAvailability(petID int, available bool) error
+	SoftRemove(id int) error
 }
 
 // VisitInterface is a model for visit struct
