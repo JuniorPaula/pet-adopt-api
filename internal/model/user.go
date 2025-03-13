@@ -39,3 +39,11 @@ func NewUser(firstName, lastName, email, password string, isAdmin bool) (*User, 
 func (u *User) ValidatePassword(password string) bool {
 	return bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(password)) == nil
 }
+
+func (u *User) GenerateHashedPassword(password string) (string, error) {
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return "", err
+	}
+	return string(hash), nil
+}

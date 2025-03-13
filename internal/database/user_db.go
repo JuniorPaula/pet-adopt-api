@@ -2,6 +2,7 @@ package database
 
 import (
 	"get_pet/internal/model"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -17,7 +18,16 @@ func NewUser(db *gorm.DB) *UserDB {
 }
 
 func (u *UserDB) Create(user *model.User) error {
-	return u.DB.Create(user).Error
+	result := u.DB.Create(user)
+
+	if err := u.DB.Save(&model.UserDetails{
+		UserID:    user.ID,
+		CreatedAt: time.Now().Format("2006-01-02 15:04:05")},
+	).Error; err != nil {
+		return err
+	}
+
+	return result.Error
 }
 
 func (u *UserDB) GetByEmail(email string) (*model.User, error) {
@@ -28,6 +38,10 @@ func (u *UserDB) GetByEmail(email string) (*model.User, error) {
 
 func (u *UserDB) GetByID(id int) (*model.User, error) {
 	var user model.User
-	err := u.DB.Where("id = ?", id).First(&user).Error
+	err := u.DB.Preload("Details").Where("id = ?", id).First(&user).Error
 	return &user, err
+}
+
+func (u *UserDB) Update(user *model.User, newUser any) error {
+	return u.DB.Model(&user).Where("id = ?", user.ID).Updates(newUser).Error
 }
