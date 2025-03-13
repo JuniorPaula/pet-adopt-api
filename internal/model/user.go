@@ -17,7 +17,8 @@ type User struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
 
-	Pets []Pet `json:"pets" gorm:"foreignKey:UserID"`
+	Pets    []Pet       `json:"pets" gorm:"foreignKey:UserID"`
+	Details UserDetails `json:"details" gorm:"foreignKey:UserID"`
 }
 
 func NewUser(firstName, lastName, email, password string, isAdmin bool) (*User, error) {

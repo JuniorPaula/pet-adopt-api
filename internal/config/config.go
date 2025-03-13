@@ -24,7 +24,7 @@ func ConnectDatabase() (*gorm.DB, error) {
 		return nil, err
 	}
 
-	db.AutoMigrate(&model.User{}, &model.Pet{}, &model.Adoption{}, &model.Visit{})
+	db.AutoMigrate(&model.User{}, &model.Pet{}, &model.Adoption{}, &model.Visit{}, &model.UserDetails{})
 
 	log.Println("Database connected")
 	return db, nil
