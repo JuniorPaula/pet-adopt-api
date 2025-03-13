@@ -7,6 +7,7 @@ type UserInterface interface {
 	Create(user *model.User) error
 	GetByEmail(string) (*model.User, error)
 	GetByID(int) (*model.User, error)
+	Update(user *model.User, newUser any) error
 }
 
 // PetInterface is a model for pet struct
@@ -38,4 +39,9 @@ type AdoptInterface interface {
 	Create(adopt *model.Adoption) error
 	GetAdoptionsByUserID(userID uint) ([]model.Adoption, error)
 	FindAdoptionByPetIDAndAdopterID(petID int, adoptID uint) (*model.Adoption, error)
+}
+
+// UserDetails is a model for user details struct
+type UserDetailsInterface interface {
+	Update(userDetails *model.UserDetails) error
 }

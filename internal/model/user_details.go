@@ -12,3 +12,14 @@ type UserDetails struct {
 	CreatedAt string `json:"created_at,omitempty"`
 	UpdatedAt string `json:"updated_at,omitempty"`
 }
+
+func NewUserDetails(userID int, phone, address, city, province, zipCode string) *UserDetails {
+	return &UserDetails{
+		UserID:   userID,
+		Phone:    phone,
+		Address:  address,
+		City:     city,
+		Province: province,
+		ZipCode:  zipCode,
+	}
+}
