@@ -16,6 +16,7 @@ type User struct {
 
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	DeletedAt time.Time `json:"deleted_at,omitempty"`
 
 	Pets    []Pet       `json:"pets" gorm:"foreignKey:UserID"`
 	Details UserDetails `json:"details" gorm:"foreignKey:UserID"`
@@ -46,4 +47,8 @@ func (u *User) GenerateHashedPassword(password string) (string, error) {
 		return "", err
 	}
 	return string(hash), nil
+}
+
+func (u *User) IsAccountActivated() bool {
+	return !u.DeletedAt.IsZero()
 }

@@ -40,6 +40,10 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(Response{Error: true, Message: ERRInternalServerError})
 	}
 
+	if user.IsAccountActivated() {
+		return c.Status(fiber.StatusUnauthorized).JSON(Response{Error: true, Message: "unauthorized"})
+	}
+
 	if !user.ValidatePassword(body.Password) {
 		return c.Status(fiber.StatusUnauthorized).JSON(Response{
 			Error:   true,
