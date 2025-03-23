@@ -169,3 +169,27 @@ func (h *UserHandler) UpdateProfile(c *fiber.Ctx) error {
 		Data:    u,
 	})
 }
+
+// DeleteProfile is a handler to disable a user account
+func (h *UserHandler) DeleteProfile(c *fiber.Ctx) error {
+	userID, err := getUserIdFromCtx(c)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(Response{
+			Error:   true,
+			Message: err.Error(),
+		})
+	}
+
+	err = h.UserDB.SoftRemove(userID)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(Response{
+			Error:   true,
+			Message: ERRInternalServerError,
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(Response{
+		Error:   false,
+		Message: "Account disabled on success",
+	})
+}

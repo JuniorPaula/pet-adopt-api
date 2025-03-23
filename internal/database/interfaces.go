@@ -8,6 +8,7 @@ type UserInterface interface {
 	GetByEmail(string) (*model.User, error)
 	GetByID(int) (*model.User, error)
 	Update(user *model.User, newUser any) error
+	SoftRemove(id int) error
 }
 
 // PetInterface is a model for pet struct

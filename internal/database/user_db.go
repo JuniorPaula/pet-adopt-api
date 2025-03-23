@@ -45,3 +45,7 @@ func (u *UserDB) GetByID(id int) (*model.User, error) {
 func (u *UserDB) Update(user *model.User, newUser any) error {
 	return u.DB.Model(&user).Where("id = ?", user.ID).Updates(newUser).Error
 }
+
+func (u *UserDB) SoftRemove(id int) error {
+	return u.DB.Model(&model.User{}).Where("id = ?", id).Update("deleted_at", time.Now()).Error
+}

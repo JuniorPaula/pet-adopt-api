@@ -51,6 +51,7 @@ func BootstrapRouter(app *fiber.App, db *gorm.DB) {
 	userRouter := api.Group("/users", middleware.AuthMiddleware)
 	userRouter.Get("profile", userHandler.GetProfile)
 	userRouter.Put("profile", userHandler.UpdateProfile)
+	userRouter.Delete("profile", userHandler.DeleteProfile)
 
 	/* pets routes */
 	petRouter := api.Group("/pets", middleware.AuthMiddleware)
