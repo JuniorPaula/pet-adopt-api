@@ -128,24 +128,22 @@ func (h *UserHandler) UpdateProfile(c *fiber.Ctx) error {
 		}
 	}
 
-	if u.Details.ID > 0 {
-		if body.Details.Address != "" {
-			u.Details.Address = body.Details.Address
-		}
-		if body.Details.City != "" {
-			u.Details.City = body.Details.City
-		}
-		if body.Details.ZipCode != "" {
-			u.Details.ZipCode = body.Details.ZipCode
-		}
-		if body.Details.Phone != "" {
-			u.Details.Phone = body.Details.Phone
-		}
-		if body.Details.Province != "" {
-			u.Details.Province = body.Details.Province
-		}
-		u.Details.UpdatedAt = time.Now().Format("2006-01-02 15:04:05")
+	if body.Details.Address != "" {
+		u.Details.Address = body.Details.Address
 	}
+	if body.Details.City != "" {
+		u.Details.City = body.Details.City
+	}
+	if body.Details.ZipCode != "" {
+		u.Details.ZipCode = body.Details.ZipCode
+	}
+	if body.Details.Phone != "" {
+		u.Details.Phone = body.Details.Phone
+	}
+	if body.Details.Province != "" {
+		u.Details.Province = body.Details.Province
+	}
+	u.Details.UpdatedAt = time.Now().Format("2006-01-02 15:04:05")
 
 	err = h.UserDB.Update(u, updatedFileds)
 	if err != nil {
