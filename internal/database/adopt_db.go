@@ -22,7 +22,7 @@ func (u *AdoptDB) Create(adopt *model.Adoption) error {
 
 func (r *AdoptDB) GetAdoptionsByUserID(userID uint) ([]model.Adoption, error) {
 	var adoptions []model.Adoption
-	err := r.DB.Preload("OldOwner").Preload("Adopter").Where("adopter_id = ?", userID).Preload("Pet").Find(&adoptions).Error
+	err := r.DB.Preload("OldOwner.Details").Preload("Adopter.Details").Where("adopter_id = ?", userID).Preload("Pet").Find(&adoptions).Error
 	if err != nil {
 		return nil, err
 	}
@@ -31,7 +31,7 @@ func (r *AdoptDB) GetAdoptionsByUserID(userID uint) ([]model.Adoption, error) {
 
 func (r *AdoptDB) FindAdoptionByPetIDAndAdopterID(petID int, adoptID uint) (*model.Adoption, error) {
 	var adopt *model.Adoption
-	err := r.DB.Preload("OldOwner").Preload("Adopter").Where("pet_id = ? AND adopter_id = ?", petID, adoptID).Preload("Pet").First(&adopt).Error
+	err := r.DB.Preload("OldOwner.Details").Preload("Adopter.Details").Where("pet_id = ? AND adopter_id = ?", petID, adoptID).Preload("Pet").First(&adopt).Error
 	if err != nil {
 		return nil, err
 	}

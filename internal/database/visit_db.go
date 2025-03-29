@@ -68,7 +68,7 @@ func (vd *VisitDB) UpdateStatus(ID int, status string) error {
 func (vd *VisitDB) GetVisitsByAdoperID(adopterID uint) ([]model.Visit, error) {
 	var visits []model.Visit
 	err := vd.DB.Where("user_id = ?", adopterID).Preload("Pet", func(db *gorm.DB) *gorm.DB {
-		return db.Preload("Owner")
+		return db.Preload("Owner.Details")
 	}).Find(&visits).Error
 
 	if err != nil {
@@ -83,7 +83,7 @@ func (vd *VisitDB) GetVisitsByAdoperID(adopterID uint) ([]model.Visit, error) {
 // return a list of visits that have been made to the owner's pets
 func (vd *VisitDB) GetVisitsByOwnerID(ownerID uint) ([]model.Visit, error) {
 	var visits []model.Visit
-	err := vd.DB.Where("owner_pet_id = ? and status = 'pending'", ownerID).Preload("User").Preload("Pet").Find(&visits).Error
+	err := vd.DB.Where("owner_pet_id = ? and status = 'pending'", ownerID).Preload("User.Details").Preload("Pet").Find(&visits).Error
 
 	if err != nil {
 		return nil, err
