@@ -19,7 +19,7 @@ type User struct {
 	DeletedAt time.Time `json:"deleted_at,omitempty"`
 
 	Pets    []Pet       `json:"pets" gorm:"foreignKey:UserID"`
-	Details UserDetails `json:"details" gorm:"foreignKey:UserID"`
+	Details UserDetails `json:"details" gorm:"foreignKey:UserID;references:ID"`
 }
 
 func NewUser(firstName, lastName, email, password string, isAdmin bool) (*User, error) {

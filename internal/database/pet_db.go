@@ -63,10 +63,12 @@ func (p *PetDB) GetByID(ID, userID int) (*model.Pet, error) {
 	var pet model.Pet
 	var err error
 
+	query := p.DB.Preload("Owner.Details")
+
 	if userID > 0 {
-		err = p.DB.Preload("Owner").Where("id = ? AND user_id = ? AND deleted_at IS NULL", ID, userID).First(&pet).Error
+		err = query.Where("id = ? AND user_id = ? AND deleted_at IS NULL", ID, userID).First(&pet).Error
 	} else {
-		err = p.DB.Preload("Owner").Where("id = ? AND deleted_at IS NULL", ID).First(&pet).Error
+		err = query.Where("id = ? AND deleted_at IS NULL", ID).First(&pet).Error
 	}
 
 	if err != nil {
