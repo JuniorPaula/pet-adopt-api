@@ -127,6 +127,13 @@ func (h *PetHandler) GetAll(c *fiber.Ctx) error {
 		limitInt = 0
 	}
 
+	total, err := h.PetDB.Count()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(Response{Error: true, Message: ERRInternalServerError})
+	}
+
+	hasNextPage := pageInt*limitInt < int(total)
+
 	pets, err := h.PetDB.GetAll(pageInt, limitInt, sort)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(Response{Error: true, Message: ERRInternalServerError})
@@ -135,7 +142,13 @@ func (h *PetHandler) GetAll(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusCreated).JSON(Response{
 		Error:   false,
 		Message: "success",
-		Data:    pets,
+		Data: map[string]any{
+			"pets":         pets,
+			"total":        total,
+			"has_next":     hasNextPage,
+			"current_page": pageInt,
+			"limit":        limitInt,
+		},
 	})
 }
 

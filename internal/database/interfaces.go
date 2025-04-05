@@ -21,6 +21,7 @@ type PetInterface interface {
 	UpdateImages(ID int, images []string) error
 	UpdateAvailability(petID int, available bool) error
 	SoftRemove(id int) error
+	Count() (int64, error)
 }
 
 // VisitInterface is a model for visit struct

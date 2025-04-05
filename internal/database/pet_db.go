@@ -39,6 +39,12 @@ func (p *PetDB) GetAll(page, limit int, sort string) ([]model.Pet, error) {
 	return pets, err
 }
 
+func (p *PetDB) Count() (int64, error) {
+	var count int64
+	err := p.DB.Model(&model.Pet{}).Where("deleted_at IS NULL").Count(&count).Error
+	return count, err
+}
+
 func (p *PetDB) GetAllByUserID(userID, page, limit int, sort string) ([]model.Pet, error) {
 	var pets []model.Pet
 	var err error
