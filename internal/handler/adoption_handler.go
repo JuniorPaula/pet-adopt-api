@@ -83,13 +83,24 @@ func (h *AdoptionHandler) GetTotalAdoptionsAndVisitsByOwnerID(c *fiber.Ctx) erro
 		})
 	}
 
+	adoptions, err := h.AdoptDB.GetAdoptionsByOldOwnerID(uint(ownerID))
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(Response{
+			Error:   true,
+			Message: "failed to get adoptions",
+		})
+	}
+
 	return c.Status(fiber.StatusOK).JSON(Response{
 		Error:   false,
 		Message: "message",
 		Data: fiber.Map{
-			"adoption_count":        adoptionCount,
-			"visit_count":           visitCount,
-			"visit_scheduled_count": visitCount,
+			"adoptions": adoptions,
+			"meta": fiber.Map{
+				"adoption_count":        adoptionCount,
+				"visit_count":           visitCount,
+				"visit_scheduled_count": visitCount,
+			},
 		},
 	})
 }

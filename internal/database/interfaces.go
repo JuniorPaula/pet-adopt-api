@@ -43,6 +43,7 @@ type AdoptInterface interface {
 	GetAdoptionsByUserID(userID uint) ([]model.Adoption, error)
 	FindAdoptionByPetIDAndAdopterID(petID int, adoptID uint) (*model.Adoption, error)
 	CountAdoptionsByOwnerID(ownerID uint) (int64, error)
+	GetAdoptionsByOldOwnerID(oldOwnerID uint) ([]model.Adoption, error)
 }
 
 // UserDetails is a model for user details struct

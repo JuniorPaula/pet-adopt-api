@@ -46,3 +46,12 @@ func (r *AdoptDB) CountAdoptionsByOwnerID(ownerID uint) (int64, error) {
 	}
 	return count, nil
 }
+
+func (r *AdoptDB) GetAdoptionsByOldOwnerID(oldOwnerID uint) ([]model.Adoption, error) {
+	var adoptions []model.Adoption
+	err := r.DB.Preload("Adopter.Details").Limit(10).Order("id desc").Where("old_owner_id = ?", oldOwnerID).Preload("Pet").Find(&adoptions).Error
+	if err != nil {
+		return nil, err
+	}
+	return adoptions, nil
+}
