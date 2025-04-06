@@ -71,6 +71,7 @@ func BootstrapRouter(app *fiber.App, db *gorm.DB) {
 	adoptRouter := api.Group("/adopts", middleware.AuthMiddleware)
 	adoptRouter.Get("/", adoptionHandler.GetUserAdoptions)
 	adoptRouter.Get("/pet/:petID", adoptionHandler.GetOneAdoption)
+	adoptRouter.Get("/metrics", adoptionHandler.GetTotalAdoptionsAndVisitsByOwnerID)
 
 	/* visits routes */
 	visitRouter := api.Group("/visits", middleware.AuthMiddleware)
