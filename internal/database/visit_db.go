@@ -91,3 +91,12 @@ func (vd *VisitDB) GetVisitsByOwnerID(ownerID uint) ([]model.Visit, error) {
 
 	return visits, nil
 }
+
+func (vd *VisitDB) CountVisitsByOwnerID(ownerID uint) (int64, error) {
+	var count int64
+	err := vd.DB.Model(&model.Visit{}).Where("owner_pet_id = ? and status = 'pending'", ownerID).Count(&count).Error
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+}

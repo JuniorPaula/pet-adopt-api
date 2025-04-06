@@ -37,3 +37,12 @@ func (r *AdoptDB) FindAdoptionByPetIDAndAdopterID(petID int, adoptID uint) (*mod
 	}
 	return adopt, nil
 }
+
+func (r *AdoptDB) CountAdoptionsByOwnerID(ownerID uint) (int64, error) {
+	var count int64
+	err := r.DB.Model(&model.Adoption{}).Where("old_owner_id = ?", ownerID).Count(&count).Error
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+}

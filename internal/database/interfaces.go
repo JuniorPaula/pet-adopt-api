@@ -34,6 +34,7 @@ type VisitInterface interface {
 	GetVisitsByOwnerID(ownerID uint) ([]model.Visit, error)
 	Update(visit *model.Visit, newData any) error
 	UpdateStatus(ID int, status string) error
+	CountVisitsByOwnerID(ownerID uint) (int64, error)
 }
 
 // AdoptInterface is a model for adopt pet struct
@@ -41,6 +42,7 @@ type AdoptInterface interface {
 	Create(adopt *model.Adoption) error
 	GetAdoptionsByUserID(userID uint) ([]model.Adoption, error)
 	FindAdoptionByPetIDAndAdopterID(petID int, adoptID uint) (*model.Adoption, error)
+	CountAdoptionsByOwnerID(ownerID uint) (int64, error)
 }
 
 // UserDetails is a model for user details struct
