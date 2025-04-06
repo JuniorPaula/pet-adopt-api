@@ -142,7 +142,7 @@ func (h *PetHandler) GetAll(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusCreated).JSON(Response{
 		Error:   false,
 		Message: "success",
-		Data: map[string]any{
+		Data: fiber.Map{
 			"pets":         pets,
 			"total":        total,
 			"has_next":     hasNextPage,
